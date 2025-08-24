@@ -1,13 +1,20 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
+#include <unistd.h>
+#include <sys/time.h>
 #define STB_IMAGE_IMPLEMENTATION
-#include "../stb/stb_image.h"
+#include "stb/stb_image.h"
+#include <libavcodec/avcodec.h>
+#include <libavformat/avformat.h>
+#include <libavutil/opt.h>
+#include <libavutil/imgutils.h>
+#include <libswscale/swscale.h>
 // #define STB_IMAGE_WRITE_IMPLEMENTATION
 // #include "../stb/stb_image_write.h"
 
-#define SCALEX                   10
-#define SCALEY                   SCALEX*0.56
+// #define SCALEX                   5
+// #define SCALEY                   SCALEX*0.56
 
 // Grayscale conversion weights for R, G, B channels
 #define GRAYSCALE_WEIGHT_R       0.21
@@ -26,6 +33,24 @@ void pixelsToGrayscale(const Image *img, uint8_t *grayscaleData);
 void computeAsciiArt(const uint8_t *grayscaleData, int width, int height, int scalex, int scaley, const char *grayRamp, char *characterData);
 void printAsciiArt(const char *characterData, int outputCharWidth, int outputCharHeight);
 void selectAsciiCharacter(const uint8_t averageDensity, const char *grayRamp, char *characterData, const int charIndex);
+//void updateTerminalZoom(const int outputCharWidth, const int outputCharHeight);
+
+// //int system(const char *command);
+// void updateTerminalZoom(const int outputCharWidth, const int outputCharHeight)
+// {
+//    system("Ctrl-");
+// }
+
+// void loadvideo()
+// {
+//    FILE *fp = fopen("vid.mp4", 'r');
+//    if(fp == NULL)
+//    {
+//       perror("Error loading video file");
+//       return 1;
+//    }
+
+// }
 
 Image loadImage(const char *filename, int desiredChannels)
 {
@@ -93,6 +118,16 @@ void pixelsToGrayscale(const Image *img, uint8_t *grayscaleData)
    }
 }
 
+int hasImageExtension(const char *filename) {
+    const char *ext = strrchr(filename, '.');
+    if (!ext) return 0;
+    ext++;
+    return (strcasecmp(ext, "jpg") == 0 ||
+            strcasecmp(ext, "jpeg") == 0 ||
+            strcasecmp(ext, "png") == 0 ||
+            strcasecmp(ext, "bmp") == 0);
+}
+
 /**
  * Converts a grayscale image into ASCII art.
  * 
@@ -141,57 +176,215 @@ void computeAsciiArt(const uint8_t *grayscaleData, int width, int height, int ou
    }
 }
 
-int main(void)
+int main(int argc, char *argv[])
 {
-   
-   // channels - number of bytes in each pixel  
-   // width - width of the image
-   // height - height of the image
-   const char *imgName = "media/michcar.jpg";
-   int desiredChannels = 3;
-   Image img = loadImage(imgName, desiredChannels);
-   if(img.data == NULL)
-   {
-      printf("Error in loading image\n");
-      return 1;
-   }
+   if (argc < 3) {
+        printf("Usage: %s <video_file>\n", argv[0]);
+        return -1;
+    }
 
-   // calculate the amount of characters in the x and y axis based on the scaling factor
-   int outputCharCountXAxis = img.width/SCALEX;
-   int outputCharCountYAxis = img.height/SCALEY;
-
-   // allocating memory to store the grayscale image data
-   uint8_t *grayscaleData = (uint8_t*) malloc(img.width * img.height * sizeof(uint8_t));
-   // allocation memory to store the character data
-   char *characterData = malloc(outputCharCountXAxis * outputCharCountYAxis * sizeof(char));
-
-   if(grayscaleData == NULL || characterData == NULL)
-   {
-      free(grayscaleData);
-      free(characterData);
-      printf("Error allocating memory on the heap\n");
-      return 1;
-   }
-
-   // for black background
+       // for black background
    const char *grayRamp = " .:~+*#$";
 
    // for white background
    //char *grayRamp = "#$*+~:. ";
 
-   // processing
-   pixelsToGrayscale(&img, grayscaleData);
-   computeAsciiArt(grayscaleData, img.width, img.height, outputCharCountXAxis, outputCharCountYAxis, grayRamp, characterData);
+   const char *filename = argv[1];
+   const int SCALEY = atoi(argv[2]);
+   const double SCALEX = (double)(SCALEY*0.50);
+   
 
-   // output
-   printAsciiArt(characterData, outputCharCountXAxis, outputCharCountYAxis);
+   if(hasImageExtension(filename))
+   {
+      // channels - number of bytes in each pixel  
+      // width - width of the image
+      // height - height of the image
+      //updateTerminalZoom(1, 1);
+      int desiredChannels = 3;
+      Image img = loadImage(filename, desiredChannels);
+      if(img.data == NULL)
+      {
+         printf("Error in loading image\n");
+         return 1;
+      }
 
-   //cleanup
-   free(grayscaleData);
-   free(characterData);
-   stbi_image_free(img.data);
-   return 0;
+      // calculate the amount of characters in the x and y axis based on the scaling factor
+      int outputCharCountXAxis = img.width/SCALEX;
+      int outputCharCountYAxis = img.height/SCALEY;
 
+      // allocating memory to store the grayscale image data
+      uint8_t *grayscaleData = (uint8_t*) malloc(img.width * img.height * sizeof(uint8_t));
+      // allocation memory to store the character data
+      char *characterData = malloc(outputCharCountXAxis * outputCharCountYAxis * sizeof(char));
+
+      if(grayscaleData == NULL || characterData == NULL)
+      {
+         free(grayscaleData);
+         free(characterData);
+         printf("Error allocating memory on the heap\n");
+         return 1;
+      }
+
+      // processing
+      pixelsToGrayscale(&img, grayscaleData);
+      computeAsciiArt(grayscaleData, img.width, img.height, outputCharCountXAxis, outputCharCountYAxis, grayRamp, characterData);
+
+      // output
+      printAsciiArt(characterData, outputCharCountXAxis, outputCharCountYAxis);
+
+      //cleanup
+      free(grayscaleData);
+      free(characterData);
+      stbi_image_free(img.data);
+      return 0;
+   }
+   else
+   {
+      // used AI from here
+      AVFormatContext *fmt_ctx = NULL;
+      if (avformat_open_input(&fmt_ctx, filename, NULL, NULL) < 0) {
+         fprintf(stderr, "Could not open source file %s\n", filename);
+         return -1;
+      }
+      if (avformat_find_stream_info(fmt_ctx, NULL) < 0) {
+         fprintf(stderr, "Could not find stream information\n");
+         return -1;
+      }
+
+      
+      // Find video stream
+      int video_stream_index = -1;
+      AVCodecParameters *codecpar = NULL;
+      for (unsigned i = 0; i < fmt_ctx->nb_streams; i++) {
+         if (fmt_ctx->streams[i]->codecpar->codec_type == AVMEDIA_TYPE_VIDEO) {
+               video_stream_index = i;
+               codecpar = fmt_ctx->streams[i]->codecpar;
+               break;
+         }
+      }
+      if (video_stream_index == -1) {
+         fprintf(stderr, "No video stream found\n");
+         return -1;
+      }
+
+      int videoStreamIndex = av_find_best_stream(fmt_ctx, AVMEDIA_TYPE_VIDEO, -1, -1, NULL, 0);
+      if (videoStreamIndex < 0) {
+         fprintf(stderr, "Could not find video stream\n");
+         return -1;
+      }
+
+      AVStream *videoStream = fmt_ctx->streams[videoStreamIndex];
+      AVRational framerate = av_guess_frame_rate(fmt_ctx, videoStream, NULL);
+      double fps = av_q2d(framerate);
+      int delay_us = (int)(1000000.0 / fps);
+      // Open codec
+      const AVCodec *codec = avcodec_find_decoder(codecpar->codec_id);
+      if (!codec) {
+         fprintf(stderr, "Codec not found\n");
+         return -1;
+      }
+      AVCodecContext *codec_ctx = avcodec_alloc_context3(codec);
+      avcodec_parameters_to_context(codec_ctx, codecpar);
+      if (avcodec_open2(codec_ctx, codec, NULL) < 0) {
+         fprintf(stderr, "Could not open codec\n");
+         return -1;
+      }
+
+      // Prepare scaling (YUV → RGB)
+      struct SwsContext *sws_ctx = sws_getContext(codec_ctx->width, codec_ctx->height,
+                                                   codec_ctx->pix_fmt,
+                                                   codec_ctx->width, codec_ctx->height,
+                                                   AV_PIX_FMT_RGB24,
+                                                   SWS_BILINEAR, NULL, NULL, NULL);
+
+      AVFrame *frame = av_frame_alloc();
+      AVFrame *rgb_frame = av_frame_alloc();
+      int numBytes = av_image_get_buffer_size(AV_PIX_FMT_RGB24,
+                                             codec_ctx->width,
+                                             codec_ctx->height, 1);
+      uint8_t *rgb_buffer = (uint8_t *)av_malloc(numBytes * sizeof(uint8_t));
+      av_image_fill_arrays(rgb_frame->data, rgb_frame->linesize,
+                           rgb_buffer, AV_PIX_FMT_RGB24,
+                           codec_ctx->width, codec_ctx->height, 1);
+
+      AVPacket *packet = av_packet_alloc();
+
+      // ASCII buffer sizes
+      int outputCharCountXAxis = codec_ctx->width / SCALEX;
+      int outputCharCountYAxis = codec_ctx->height / SCALEY;
+      if (outputCharCountXAxis < 1) outputCharCountXAxis = 1;
+      if (outputCharCountYAxis < 1) outputCharCountYAxis = 1;
+      char *characterData = malloc(outputCharCountXAxis * outputCharCountYAxis);
+
+
+      // Allocate grayscale buffer
+      uint8_t *grayscaleData = malloc(codec_ctx->width * codec_ctx->height);
+      struct timeval wall_start, end;
+      gettimeofday(&wall_start, NULL);
+      double wall_start_sec = wall_start.tv_sec + wall_start.tv_usec / 1000000.0;
+      // Decode loop
+      // Decode loop
+      while (av_read_frame(fmt_ctx, packet) >= 0) {
+         if (packet->stream_index == video_stream_index) {
+            if (avcodec_send_packet(codec_ctx, packet) == 0) {
+                  while (avcodec_receive_frame(codec_ctx, frame) == 0) {
+                     // Convert frame to RGB
+                     sws_scale(sws_ctx, (const uint8_t * const *)frame->data,
+                              frame->linesize, 0, codec_ctx->height,
+                              rgb_frame->data, rgb_frame->linesize);
+
+                     // Wrap in Image struct
+                     Image img;
+                     img.width = codec_ctx->width;
+                     img.height = codec_ctx->height;
+                     img.channels = 3;
+                     img.data = rgb_frame->data[0];
+
+                     // Grayscale → ASCII
+                     pixelsToGrayscale(&img, grayscaleData);
+                     computeAsciiArt(grayscaleData,
+                                    img.width, img.height,
+                                    outputCharCountXAxis, outputCharCountYAxis,
+                                    grayRamp, characterData);
+
+                     // PTS-based timing
+                     double pts_seconds = (frame->pts != AV_NOPTS_VALUE) ?
+                                          frame->pts * av_q2d(videoStream->time_base) :
+                                          frame->best_effort_timestamp * av_q2d(videoStream->time_base);
+
+                     struct timeval now;
+                     gettimeofday(&now, NULL);
+                     double now_sec = now.tv_sec + now.tv_usec / 1000000.0;
+                     double target_sec = wall_start_sec + pts_seconds;
+                     double delay_sec = target_sec - now_sec;
+                     if (delay_sec > 0) {
+                        usleep((unsigned int)(delay_sec * 1000000.0));
+                     }
+
+                     // Print ASCII frame
+                     printf("\033[H");
+                     printAsciiArt(characterData, outputCharCountXAxis, outputCharCountYAxis);
+                     fflush(stdout);
+                  }
+            }
+         }
+         av_packet_unref(packet);
+      }
+
+
+      // cleanup
+      free(grayscaleData);
+      free(characterData);
+      av_free(rgb_buffer);
+      av_frame_free(&frame);
+      av_frame_free(&rgb_frame);
+      av_packet_free(&packet);
+      sws_freeContext(sws_ctx);
+      avcodec_free_context(&codec_ctx);
+      avformat_close_input(&fmt_ctx);
+
+      return 0;
+   }
 }
 
 // write a function to print hello world
