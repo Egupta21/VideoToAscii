@@ -30,24 +30,7 @@ void pixelsToGrayscale(const Image *img, uint8_t *grayscaleData);
 void computeAsciiArt(const uint8_t *grayscaleData, int width, int height, int scalex, int scaley, const char *grayRamp, char *characterData);
 void printAsciiArt(const char *characterData, int outputCharWidth, int outputCharHeight);
 void selectAsciiCharacter(const uint8_t averageDensity, const char *grayRamp, char *characterData, const int charIndex);
-//void updateTerminalZoom(const int outputCharWidth, const int outputCharHeight);
 
-// //int system(const char *command);
-// void updateTerminalZoom(const int outputCharWidth, const int outputCharHeight)
-// {
-//    system("Ctrl-");
-// }
-
-// void loadvideo()
-// {
-//    FILE *fp = fopen("vid.mp4", 'r');
-//    if(fp == NULL)
-//    {
-//       perror("Error loading video file");
-//       return 1;
-//    }
-
-// }
 
 Image loadImage(const char *filename, int desiredChannels)
 {
