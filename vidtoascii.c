@@ -3,12 +3,15 @@
 #include <math.h>
 #include <unistd.h>
 #include <sys/time.h>
-#include "stb/stb_image.h"
+
 #include <libavcodec/avcodec.h>
 #include <libavformat/avformat.h>
 #include <libavutil/opt.h>
 #include <libavutil/imgutils.h>
 #include <libswscale/swscale.h>
+
+#define STB_IMAGE_IMPLEMENTATION
+#include "stb/stb_image.h"
 
 // #define SCALEX                   5
 // #define SCALEY                   SCALEX*0.56
