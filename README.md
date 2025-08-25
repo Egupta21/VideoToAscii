@@ -8,21 +8,21 @@ C program that donverts images and videos into ASCII art displayed in the termin
 
 ## Setup
 
-Clone the repo 
-`git clone https://github.com/Egupta21/VideoToAscii.git`
+Clone the repo <br>
+`git clone https://github.com/Egupta21/VideoToAscii.git`<br>
 `cd VideoToAscii`
 
 ### Install dependencies
 
-ffmpeg setup
-`sudo apt update`
+ffmpeg setup<br>
+`sudo apt update`<br>
 `sudo apt install build-essential pkg-config libavcodec-dev libavformat-dev libavutil-dev libswscale-dev`
 
-stb setup
-`mkdir stb`
+stb setup<br>
+`mkdir stb`<br>
 `wget -O stb/stb_image.h https://raw.githubusercontent.com/nothings/stb/master/stb_image.h`
 
-create media folder to store input media
+create media folder to store input media<br>
 `mkdir media`
 
 # Build
@@ -31,26 +31,25 @@ create media folder to store input media
 
 # Usage
 
-`./vidtoascii <file> <scaleY>`
-<file> → Path to an image (.jpg, .png, etc.) or video (.mp4, etc.)
-
+`./vidtoascii <file> <scaleY>`<br>
+<file> → Path to an image (.jpg, .png, etc.) or video (.mp4, etc.)<br>
 <scaleY> → Vertical scale factor (higher = fewer rows, lower = more detail)
 
 ## Examples
 
-Convert an image:
+Convert an image:<br>
 `./vidtoascii media/test.png 10`
 
-Convert a video:
+Convert a video:<br>
 `./vidtoascii media/demo.mp4 15`
 
 # Project Structure
 
-VideoToAscii/
-├── media/          # put test images and videos here
-├── stb/            # stb_image.h (downloaded via setup step)
-├── vidtoascii.c    # main source file
-└── vidtoascii      # compiled binary (after build)
+VideoToAscii/<br>
+├── media/          # put test images and videos here<br>
+├── stb/            # stb_image.h (downloaded via setup step)<br>
+├── vidtoascii.c    # main source file<br>
+└── vidtoascii      # compiled binary (after build)<br>
 
 
 
