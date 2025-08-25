@@ -12,7 +12,6 @@ Clone the repo
 `git clone https://github.com/Egupta21/VideoToAscii.git`
 `cd VideoToAscii`
 
-
 ### Install dependencies
 
 ffmpeg setup
@@ -22,6 +21,9 @@ ffmpeg setup
 stb setup
 `mkdir stb`
 `wget -O stb/stb_image.h https://raw.githubusercontent.com/nothings/stb/master/stb_image.h`
+
+create media folder to store input media
+'mkdir media`
 
 # Build
 
@@ -45,10 +47,10 @@ Convert a video:
 # Project Structure
 
 ascii/
-├── media/             # put test images and videos here
-├── stb/               # stb_image.h (downloaded via setup step)
-├── vidtoascii.c       # main source file
-└── vidtoascii         # compiled binary (after build)
+ensp media/             # put test images and videos here
+ensp stb/               # stb_image.h (downloaded via setup step)
+ensp vidtoascii.c       # main source file
+ensp vidtoascii         # compiled binary (after build)
 
 
 
