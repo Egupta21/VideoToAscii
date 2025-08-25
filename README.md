@@ -2,7 +2,7 @@
 
 C program that donverts images and videos into ASCII art displayed in the terminal
 
-- Allows for adjustable scaling to control the amount of characters displyed in an axis
+- Adjustable scaling lets you control the number of ASCII characters used  
 
 # Requirements
 
@@ -23,7 +23,7 @@ stb setup
 `wget -O stb/stb_image.h https://raw.githubusercontent.com/nothings/stb/master/stb_image.h`
 
 create media folder to store input media
-'mkdir media`
+`mkdir media`
 
 # Build
 
@@ -46,11 +46,12 @@ Convert a video:
 
 # Project Structure
 
-ascii/
-ensp media/             # put test images and videos here
-ensp stb/               # stb_image.h (downloaded via setup step)
-ensp vidtoascii.c       # main source file
-ensp vidtoascii         # compiled binary (after build)
+VideoToAscii/
+├── media/          # put test images and videos here
+├── stb/            # stb_image.h (downloaded via setup step)
+├── vidtoascii.c    # main source file
+└── vidtoascii      # compiled binary (after build)
+
 
 
 
