@@ -19,7 +19,7 @@ ffmpeg setup<br>
 `sudo apt install build-essential pkg-config libavcodec-dev libavformat-dev libavutil-dev libswscale-dev`
 
 stb setup<br>
-`mkdir stb`<br>
+```mkdir stb` <br>
 `wget -O stb/stb_image.h https://raw.githubusercontent.com/nothings/stb/master/stb_image.h`
 
 create media folder to store input media<br>
@@ -32,8 +32,8 @@ create media folder to store input media<br>
 # Usage
 
 `./vidtoascii <file> <scaleY>`<br>
-<file> → Path to an image (.jpg, .png, etc.) or video (.mp4, etc.)<br>
-<scaleY> → Vertical scale factor (higher = fewer rows, lower = more detail)
+`file` → Path to an image (.jpg, .png, etc.) or video (.mp4, etc.)<br>
+`scaleY` → Vertical scale factor (higher = fewer rows, lower = more detail)
 
 ## Examples
 
